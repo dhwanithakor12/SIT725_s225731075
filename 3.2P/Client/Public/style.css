@@ -1,0 +1,105 @@
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+
+nav {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+nav .brand-logo {
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+h4.center {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+p.center {
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.card-image img {
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card-image:hover img {
+    transform: scale(1.05);
+}
+
+.card-title {
+    background: rgba(0,0,0,0.6);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.card-content p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+
+.card-action {
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.card-action span {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+
+footer.page-footer {
+    padding: 20px 0;
+    font-size: 0.9rem;
+    background-color: #1976d2; 
+    color: white;
+}
+
+footer.page-footer p {
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    h4.center {
+        font-size: 1.5rem;
+    }
+
+    .card-image img {
+        height: 180px;
+    }
+}
+
+
+button, .btn {
+    transition: all 0.3s ease;
+}
+
+button:hover, .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
