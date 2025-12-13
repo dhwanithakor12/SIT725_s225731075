@@ -1,0 +1,157 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8" />
+  <title>SIT725 - Inventory (DB demo)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+    input, select { padding: 6px; width: 100%; box-sizing: border-box; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .full { grid-column: 1 / -1; }
+    button { padding: 8px 12px; margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>SIT725 — Inventory (DB + Server)</h1>
+  <p>Demo of server-side functions using SQLite. CRUD endpoints on the server.</p>
+
+  <section>
+    <h2>Add New Item</h2>
+    <div id="form">
+      <div class="row">
+        <div>
+          <label>Item name</label><input id="item_name" />
+        </div>
+        <div>
+          <label>Category</label><input id="category" />
+        </div>
+        <div>
+          <label>Quantity</label><input id="quantity" type="number" min="0" />
+        </div>
+        <div>
+          <label>Location</label><input id="location" />
+        </div>
+        <div>
+          <label>Received on (YYYY-MM-DD)</label><input id="received_on" placeholder="2025-12-01" />
+        </div>
+        <div>
+          <label>Supplier email</label><input id="supplier_email" />
+        </div>
+      </div>
+      <button id="addBtn">Add Item</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Inventory Items</h2>
+    <div id="list">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Category</th><th>Qty</th><th>Location</th><th>Received</th><th>Supplier</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    const base = '/api/items';
+
+    async function fetchItems() {
+      const res = await fetch(base);
+      const data = await res.json();
+      const tbody = document.getElementById('itemsBody');
+      tbody.innerHTML = '';
+      data.forEach(it => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${it.item_id}</td>
+          <td>${it.item_name}</td>
+          <td>${it.category}</td>
+          <td>${it.quantity}</td>
+          <td>${it.location}</td>
+          <td>${it.received_on}</td>
+          <td>${it.supplier_email || ''}</td>
+          <td>
+            <button onclick="deleteItem(${it.item_id})">Delete</button>
+            <button onclick="editItem(${it.item_id})">Edit</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function addItem() {
+      const payload = {
+        item_name: document.getElementById('item_name').value,
+        category: document.getElementById('category').value,
+        quantity: Number(document.getElementById('quantity').value),
+        location: document.getElementById('location').value,
+        received_on: document.getElementById('received_on').value,
+        supplier_email: document.getElementById('supplier_email').value
+      };
+      const res = await fetch(base, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        alert('Item added');
+        document.getElementById('item_name').value = '';
+        document.getElementById('category').value = '';
+        document.getElementById('quantity').value = '';
+        document.getElementById('location').value = '';
+        document.getElementById('received_on').value = '';
+        document.getElementById('supplier_email').value = '';
+        fetchItems();
+      } else {
+        const err = await res.json();
+        alert('Error: ' + (err.error||'unknown'));
+      }
+    }
+
+    async function deleteItem(id) {
+      if (!confirm('Delete item ' + id + '?')) return;
+      const res = await fetch(base + '/' + id, { method: 'DELETE' });
+      if (res.ok) {
+        fetchItems();
+      } else {
+        alert('Delete failed');
+      }
+    }
+
+    async function editItem(id) {
+      const res = await fetch(base + '/' + id);
+      if (!res.ok) { alert('Failed to fetch'); return; }
+      const it = await res.json();
+      const newName = prompt('Name', it.item_name);
+      if (newName == null) return;
+      const newQty = prompt('Quantity', it.quantity);
+      if (newQty == null) return;
+      const payload = {
+        item_name: newName,
+        category: it.category,
+        quantity: Number(newQty),
+        location: it.location,
+        received_on: it.received_on,
+        supplier_email: it.supplier_email
+      };
+      const r2 = await fetch(base + '/' + id, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (r2.ok) fetchItems();
+      else alert('Update failed');
+    }
+
+    document.getElementById('addBtn').addEventListener('click', addItem);
+
+    fetchItems();
+  </script>
+</body>
+</html>
